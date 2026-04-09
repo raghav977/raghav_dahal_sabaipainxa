@@ -1,6 +1,7 @@
 
 const Kyc = require("../../models/Kyc");
 const ServiceProvider = require("../../models/ServiceProvider");
+const BusinessAccount = require("../../models/BusinessAccount");
 
 const { getFilePath } = require("../../services/fileServices");
 const { assignRoleToUser } = require("../../services/userServices");
@@ -10,6 +11,7 @@ const { authMiddleware } = require("../../middleware/authMiddleware");
 const BaseController = require("../baseController");
 const User = require("../../models/User");
 const KycImages = require("../../models/kycImages");
+const { Op } = require("sequelize");
 
 const verifyKyc = async (req, res, next) => {
     console.log("KYC verification request received:", { admin: req.user.id, body: req.body });
@@ -91,39 +93,41 @@ class kycController extends BaseController{
                 });
             }
 
-
+            // Include both User and BusinessAccount with nested User
             const {count,rows} = await this.model.findAndCountAll({
                 where,
                 limit,
                 offset,
                 order,
-                include:[{
-                    model:User,
-                    attributes:["id","username","email","phone_number"]
-                },
-                {
-                    model:KycImages,
-                    attributes:["id","image_path","image_type"]
-                }
-            ]
-        });
+                include: [
+                    {
+                        model: User,
+                        attributes: ["id", "username", "email", "phone_number"],
+                        required: false
+                    },
+                    {
+                        model: KycImages,
+                        attributes: ["id", "image_path", "image_type"]
+                    }
+                ]
+            });
 
-        return responses.success(res,{
-            total:count,
-            limit,
-            offset,
-            result:rows,
-            next: offset + limit < count ? offset + limit : null,
-            previous: offset - limit >= 0 ? offset - limit : null,
+            return responses.success(res,{
+                total:count,
+                limit,
+                offset,
+                result:rows,
+                next: offset + limit < count ? offset + limit : null,
+                previous: offset - limit >= 0 ? offset - limit : null,
 
-        },"KYC records retrieved successfully");
+            },"KYC records retrieved successfully");
+        }
+
+        catch(err){
+            console.error("Error in listing KYC records:", err);
+            return responses.serverError(res,{},"An error occurred while retrieving KYC records.");
+        }
     }
-
-    catch(err){
-        console.error("Error in listing KYC records:", err);
-        return responses.serverError(res,{},"An error occurred while retrieving KYC records.");
-    }
-}
 }
 
 

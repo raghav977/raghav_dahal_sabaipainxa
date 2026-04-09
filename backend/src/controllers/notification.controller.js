@@ -36,7 +36,11 @@ const markNotificationsRead = async (req, res) => {
     const userId = req.user.id;
     console.log("This is request body:", req.body);
 
-    await Notification.update({ isRead: true });
+    await Notification.update({ isRead: true },{
+        where: {
+            userId: userId,
+        }
+    });
 
     return responses.success(res, "Notifications marked as read");
   } catch (err) {

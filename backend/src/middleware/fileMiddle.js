@@ -33,6 +33,8 @@ const upload = multer({ storage: storage, fileFilter: fileFilter });
 const fileMid = (req, res, next) => {
     const uploadFields = upload.fields([
         { name: 'passport_photo', maxCount: 1 },
+        { name: 'citizenship_front', maxCount: 1 },
+        { name: 'citizenship_back', maxCount: 1 },
         { name: 'citizenship_card_front', maxCount: 1 },
         { name: 'citizenship_card_back', maxCount: 1 },
         { name: 'document_file', maxCount: 1 }

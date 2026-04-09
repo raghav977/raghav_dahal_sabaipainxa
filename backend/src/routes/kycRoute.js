@@ -10,7 +10,7 @@ const router = express.Router();
 
 router.post("/apply",authMiddleware,fileMid, applyKyc);
 
-router.get("/document-type",authMiddleware,documentType)
+router.get("/document-type",documentType)
 // admin routes for KYC verification will be in adminRoute.js
 
 

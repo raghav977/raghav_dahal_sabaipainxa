@@ -17,9 +17,10 @@ const seedDatabase = async () => {
         { name: "Admin" },
         { name: "Service_provider" },
         { name: "Service_seeker" },
-        { name: "Gharbeti" }
+        { name: "Gharbeti" },
+        { name: "BusinessAccount" }
       ],
-      { ignoreDuplicates: true } // prevent duplicates if run multiple times
+      { ignoreDuplicates: true } 
     );
 
     const services = [

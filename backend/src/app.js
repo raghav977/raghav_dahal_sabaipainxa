@@ -7,11 +7,7 @@ const errorHandler = require("./middleware/errorHandler");
 const path = require("path");
 const rateLimit = require("express-rate-limit"); 
 
-const swaggerUi = require("swagger-ui-express");
 
-const swaggerSpec = require("./config/swagger");
-
-const scrappingRoute = require("./routes/scrapping");
 
 const app = express();
 
@@ -34,7 +30,10 @@ app.use(cors({
   exposedHeaders: ["x-access-token", "x-refresh-token"]
 }));
 app.use("/uploads", express.static(path.join(__dirname, "../uploads")));
-app.use(express.json());
+
+// Increase payload size limit for photo uploads (base64 encoded images)
+app.use(express.json({ limit: "50mb" }));
+app.use(express.urlencoded({ limit: "50mb", extended: true }));
 
 
 
@@ -61,6 +60,10 @@ const notificationRoute = require("./routes/notification.route");
 const ratingRoute = require("./routes/rating.routes");
 
 const gharbetiDashboardRoute = require("./routes/gharbetidashboard.route");
+const jobRoutes = require("./routes/job.routes");
+const businessAccountRoutes = require("./routes/businessAccount.routes");
+const websiteBuilderRoutes = require("./routes/websiteBuilder.routes");
+const workerProfileRoutes = require("./routes/workerProfile.routes");
 // Admin KYC
 app.use("/api/admin/kyc", adminKycRoute);
 
@@ -92,11 +95,23 @@ app.use("/api/admin/dashboard", dashboardRoute);
 // Notifications
 app.use("/api/notifications", notificationRoute);
 
+// Jobs
+app.use("/api/jobs", jobRoutes);
+
+// Business Accounts
+app.use("/api/business-accounts", businessAccountRoutes);
+
+// Website Builder
+app.use("/api/website-builder", websiteBuilderRoutes);
+
+// Worker Profiles
+app.use("/api/worker-profiles", workerProfileRoutes);
+
 // Payments
 app.use("/api/payments", paymentRoute);
 
 
-app.use("/api/pdfs",scrappingRoute);
+
 
 // ratings
 
@@ -197,7 +212,6 @@ app.use("/api/payments",paymentRoute)
 
 // swagger docs
 
-app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 
 

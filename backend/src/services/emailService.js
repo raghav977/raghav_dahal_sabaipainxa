@@ -12,6 +12,8 @@ const sendEmail = async (to, subject, otp) => {
       },
     });
 
+    console.log("SMTP transporter created successfully");
+
     const html = `
       <table width="100%" cellpadding="0" cellspacing="0" style="font-family: Arial, sans-serif; background-color: #f5f5f5; padding: 20px;">
         <tr>
@@ -21,7 +23,7 @@ const sendEmail = async (to, subject, otp) => {
               <!-- Header -->
               <tr>
                 <td align="center" style="padding: 20px;">
-                  <img src="https://yourdomain.com/logo.png" alt="UPAAYAX" width="150" style="display: block;">
+                  <img src="https://yourdomain.com/logo.png" alt="sabaipainxa" width="150" style="display: block;">
                 </td>
               </tr>
 
@@ -41,7 +43,7 @@ const sendEmail = async (to, subject, otp) => {
                   <p>Best regards,</p>
                   <img src="https://yourdomain.com/signature.png" alt="UPAAYAX Team" width="120">
                   <p>UPAAYAX Team</p>
-                  <p><a href="https://upayax.com" style="color: #4CAF50; text-decoration: none;">upayax.com</a></p>
+                  <p><a href="https://sabaipainxa.com" style="color: #4CAF50; text-decoration: none;">sabaipainxa.com</a></p>
                 </td>
               </tr>
 

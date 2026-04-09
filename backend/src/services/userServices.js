@@ -56,7 +56,7 @@ const createUser = async(userData)=>{
   }
   if(name.includes("@")){
     throw new Error("Name should not contain @")
-  }a
+  }
   if(name.includes(".")){
     throw new Error("Name should not contain (dot) .")
   }
@@ -66,7 +66,7 @@ const createUser = async(userData)=>{
   }
 
         userData.username = userData.email.split("@")[0] + Math.floor(Math.random()*1000);
-    
+    console.log("Creating user with data:", userData);
     const user = await User.create(userData);
     return user;
 }

@@ -10,6 +10,7 @@ const applyKyc = async (req, res, next) => {
 
         const path = req.query.data;
         console.log('Thisis path',path);
+        console.log("Apply KYC request received:", { user: user.id, body, files, path });
 
         const createKyc = await kycService.submitKyc(user, body, files, path);
         const { kyc, entityType, role, entity } = createKyc;

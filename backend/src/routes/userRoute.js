@@ -1,5 +1,5 @@
 
-const {requestOtpForRegistration,verifyOtpForRegistration,registerUser,loginUser,registerAdmin, getUserProfile, aboutGharbeti, aboutServiceProvider, logoutUser, forgetPassword, resetPassword, updateUserProfile, updateProfile, gharbetiDetail} = require("../controllers/userController");
+const {requestOtpForRegistration,verifyOtpForRegistration,registerUser,loginUser,registerAdmin, getUserProfile, aboutGharbeti, aboutServiceProvider, logoutUser, forgetPassword, resetPassword, updateUserProfile, updateProfile, gharbetiDetail, searchNearbyUsers, searchCandidatesForBusiness, createUserLocation, listUserLocations, deleteUserLocation} = require("../controllers/userController");
 const { adminProviderMiddleware } = require("../middleware/adminProviderMiddleware");
 const { authMiddleware } = require("../middleware/authMiddleware");
 
@@ -36,6 +36,17 @@ router.post("/reset-password",resetPassword)
 
 
 router.get("/profile",authMiddleware,getUserProfile);
+
+// Public nearby users search (lat, lng, radius(km), availability, skills)
+router.get("/nearby", searchNearbyUsers);
+
+// Public candidate search for businesses (by location + radius)
+router.get("/search-candidates", searchCandidatesForBusiness);
+
+// User locations (no auth for now)
+router.post("/locations", createUserLocation);
+router.get("/locations", listUserLocations);
+router.delete("/locations/:id", deleteUserLocation);
 
 
 router.get("/about/gharbeti",authMiddleware,aboutGharbeti);

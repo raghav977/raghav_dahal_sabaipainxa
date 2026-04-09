@@ -60,6 +60,10 @@ const User = sequelize.define('user', {
         type: DataTypes.STRING,
         maxLength: 255,
         allowNull: true,
+    },
+    is_business_account: {
+        type: DataTypes.BOOLEAN,
+        defaultValue: false,
     }
 }, {
     paranoid: true, 
@@ -80,5 +84,9 @@ User.beforeUpdate(async (user) => {
     }
 });
 
+// Define associations
+User.associate = function(models) {
+    User.hasOne(models.BusinessAccount, { as: 'businessAccount', foreignKey: 'user_id' });
+};
 
 module.exports = User;

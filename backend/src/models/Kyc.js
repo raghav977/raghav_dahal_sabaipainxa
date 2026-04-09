@@ -17,7 +17,7 @@ const Kyc = sequelize.define("Kyc", {
     type: DataTypes.TEXT,
   },
   entityType: {
-    type: DataTypes.ENUM("service_provider", "gharbeti"),
+    type: DataTypes.STRING(50),
     allowNull: false,
   },
   entityId: {
@@ -27,10 +27,7 @@ const Kyc = sequelize.define("Kyc", {
 }, {
   paranoid: true, 
   timestamps: true,
-},{
-    tableName:"kycs",
-    timestamps:true,
-    paranoid:true
+  tableName: "kycs"
 });
 
 module.exports = Kyc;

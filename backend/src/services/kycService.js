@@ -9,44 +9,50 @@ const { assignRoleToUser, getUserById } = require("./userServices");
 const sendEmail = require("./emailService");
 // const { Sequelize } = require("sequelize");
 const sequelize = require("../config/db");
+const BusinessAccount = require("../models/BusinessAccount");
 
 
 const submitKyc = async (user, body, files, path) => {
     console.log("this path is", path);
-    const entityType = path.includes("service_provider") ? "service_provider" : "gharbeti";
-
+    const entityType = path.includes("service_provider") ? "service_provider" : path.includes("businessAccount") ? "BusinessAccount" : "gharbeti";
 
     let EntityModel, role;
-    if (entityType!="service_provider" && entityType!="gharbeti"){
-        throw new Error("Please specify the service type for kyc either gharbeti or service_provider");
+    if (entityType != "service_provider" && entityType != "gharbeti" && entityType != "BusinessAccount") {
+        throw new Error("Please specify the service type for kyc either gharbeti, service_provider or BusinessAccount");
     }
+    
     if (entityType === "service_provider") {
         console.log("This is service provider");
-
         EntityModel = ServiceProvider;
         const assigned_role = await assignRoleToUser(user.id, "Service_provider");
         if (!assigned_role) throw new Error("Failed to assign role to user");
         role = "Service_provider";
     } else if (entityType === "gharbeti") {
-
         console.log("This is gharbeti");
         EntityModel = Gharbeti;
-
-
         const assigned_role = await assignRoleToUser(user.id, "Gharbeti");
         if (!assigned_role) throw new Error("Failed to assign role to user");
         role = "Gharbeti";
+    } else if (entityType === "BusinessAccount") {
+        console.log("This is business account");
+        EntityModel = BusinessAccount;
+        const assigned_role = await assignRoleToUser(user.id, "BusinessAccount");
+        if (!assigned_role) throw new Error("Failed to assign role to user");
+        role = "BusinessAccount";
     }
-    
 
+    // For BusinessAccount, use user_id; for others use userId
+    const whereClause = entityType === "BusinessAccount" 
+        ? { user_id: user.id } 
+        : { userId: user.id };
 
-    let entity = await EntityModel.findOne({ where: { userId: user.id } });
+    let entity = await EntityModel.findOne({ where: whereClause });
 
     if (!entity) {
-        entity = await EntityModel.create({
-            userId: user.id,
-            is_verified: false,
-        });
+        const createData = entityType === "BusinessAccount" 
+            ? { user_id: user.id, is_verified: false }
+            : { userId: user.id, is_verified: false };
+        entity = await EntityModel.create(createData);
     }
 
 
@@ -136,6 +142,8 @@ const verifyKyc = async (kycId, action, rejectionReason = null) => {
             rejection_reason: null
         });
 
+        console.log("this is kyc after approval", kyc);
+
         if (kyc.entityType === "service_provider") {
             await ServiceProvider.update(
                 { is_verified: true },
@@ -144,6 +152,11 @@ const verifyKyc = async (kycId, action, rejectionReason = null) => {
         } else if (kyc.entityType === "gharbeti") {
             await Gharbeti.update(
                 { is_verified: true },
+                { where: { id: kyc.entityId } }
+            );
+        } else if (kyc.entityType === "BusinessAccount") {
+            await BusinessAccount.update(
+                { kyc_status: "verified", is_active: true, verified_at: new Date() },
                 { where: { id: kyc.entityId } }
             );
         }
@@ -196,6 +209,11 @@ const verifyKyc = async (kycId, action, rejectionReason = null) => {
         } else if (kyc.entityType === "gharbeti") {
             await Gharbeti.update(
                 { is_verified: false, is_active: false },
+                { where: { id: kyc.entityId } }
+            );
+        } else if (kyc.entityType === "BusinessAccount") {
+            await BusinessAccount.update(
+                { kyc_status: "rejected", kyc_rejection_reason: rejectionReason },
                 { where: { id: kyc.entityId } }
             );
         }

@@ -156,6 +156,7 @@ const registerUser = async(req,res,next)=>{
         }
 
         const newUser = await userServices.createUser({name, email, password, municipal_code});
+        console.log("New user created:", newUser);
         if(!newUser){
             return responses.serverError(res,{}, "Failed to create user. Please try again.");
         }
@@ -235,6 +236,7 @@ const getUserProfile = async(req,res,next)=>{
         const user = await userServices.getUserById(userId);
          let serviceProvider = null;
     let gharbeti = null;
+    let businessAccount = null;
 
     try {
       serviceProvider = await userServices.getServiceProviderFromUserId(userId);
@@ -250,16 +252,26 @@ const getUserProfile = async(req,res,next)=>{
       gharbeti = null;
     }
 
+    try {
+      const BusinessAccount = require("../models/BusinessAccount");
+      businessAccount = await BusinessAccount.findOne({ where: { user_id: userId } });
+    } catch (err) {
+      
+      businessAccount = null;
+    }
+
 const gharbeti_id = gharbeti && gharbeti.is_active ? gharbeti.id : null;
 console.log("This is gharbeti id:", gharbeti_id);
         const service_provider_id = serviceProvider && serviceProvider.is_active ? serviceProvider.id : null;
+        const business_id = businessAccount ? businessAccount.id : null;
         console.log("This is service provider id:", service_provider_id);
+        console.log("This is business id:", business_id);
         if(!user){
             return responses.notFound(res,"User not found.");
         }
         user.password = undefined;
         const token = await tokenService.generateToken(user);
-        return responses.success(res,{user, service_provider_id, gharbeti_id, token}, "User profile fetched successfully.");
+        return responses.success(res,{user, service_provider_id, gharbeti_id, business_id, token}, "User profile fetched successfully.");
     }
     catch(err){
         console.error("Error in getUserProfile:", err);
@@ -441,6 +453,188 @@ const getAllUsers = async (req, res, next) => {
 };
 
 
+// Public endpoint: find users near a lat/lng within radius (km)
+const searchNearbyUsers = async (req, res, next) => {
+    try {
+        const latitude = req.query.latitude ? parseFloat(req.query.latitude) : null;
+        const longitude = req.query.longitude ? parseFloat(req.query.longitude) : null;
+        const radius = req.query.radius ? parseFloat(req.query.radius) : 10; // km
+        const availability = req.query.availability || null; // full-time, part-time, remote
+        const skills = req.query.skills || null; // comma-separated keywords to match name/username/email for now
+
+        if (!latitude || !longitude) {
+            return responses.badRequest(res, {}, "latitude and longitude are required");
+        }
+
+        const sequelize = require('../config/db');
+        // Haversine formula (approx) using MySQL functions
+        const haversine = `(
+            6371 * acos(
+                cos(radians(:lat)) * cos(radians(ul.latitude)) * cos(radians(ul.longitude) - radians(:lng)) +
+                sin(radians(:lat)) * sin(radians(ul.latitude))
+            )
+        )`;
+
+        let sql = `SELECT u.id as user_id, u.name, u.email, u.profile_picture, u.phone_number, ul.latitude, ul.longitude, ul.address, ul.availability, ul.radius_km, ${haversine} as distance_km
+            FROM user_locations ul
+            JOIN users u ON ul.user_id = u.id
+            WHERE u.is_active = 1`;
+
+        if (availability) {
+            sql += ` AND ul.availability = :availability`;
+        }
+
+        if (skills) {
+            // naive skills filter: match against name/email/username
+            sql += ` AND (u.name LIKE :skillLike OR u.email LIKE :skillLike OR u.username LIKE :skillLike)`;
+        }
+
+        sql += ` HAVING distance_km <= :radius ORDER BY distance_km ASC LIMIT :limit OFFSET :offset`;
+
+        const limit = parseInt(req.query.limit) || 50;
+        const page = parseInt(req.query.page) || 1;
+        const offset = (page - 1) * limit;
+
+        const replacements = { lat: latitude, lng: longitude, radius, availability, skillLike: `%${skills}%`, limit, offset };
+
+        const [results] = await sequelize.query(sql, { replacements, type: sequelize.QueryTypes.SELECT });
+
+        return responses.success(res, { total: results.length, page, limit, data: results }, "Nearby users fetched");
+    } catch (err) {
+        console.error("Error in searchNearbyUsers:", err);
+        return responses.serverError(res, {}, "Failed to search nearby users");
+    }
+}
+
+// Create a user availability/location entry (no auth for now).
+const createUserLocation = async (req, res, next) => {
+    try {
+        const { user_id, address, latitude, longitude, availability, radius_km } = req.body;
+        if (!user_id || !latitude || !longitude) {
+            return responses.badRequest(res, {}, "user_id, latitude and longitude are required");
+        }
+        const UserLocation = require('../models/UserLocation');
+        const newLoc = await UserLocation.create({ user_id, address: address || null, latitude, longitude, availability: availability || 'full-time', radius_km: radius_km || 10 });
+        return responses.created(res, newLoc, "User location created");
+    } catch (err) {
+        console.error("Error in createUserLocation:", err);
+        return responses.serverError(res, {}, "Failed to create user location");
+    }
+}
+
+// List user locations (optionally filter by user_id)
+const listUserLocations = async (req, res, next) => {
+    try {
+        const UserLocation = require('../models/UserLocation');
+        const where = {};
+        if (req.query.userId) where.user_id = req.query.userId;
+        const locations = await UserLocation.findAll({ where });
+        return responses.success(res, { total: locations.length, data: locations }, "User locations fetched");
+    } catch (err) {
+        console.error("Error in listUserLocations:", err);
+        return responses.serverError(res, {}, "Failed to list user locations");
+    }
+}
+
+// Delete a user location by id (no auth for now)
+const deleteUserLocation = async (req, res, next) => {
+    try {
+        const UserLocation = require('../models/UserLocation');
+        const id = req.params.id;
+        if (!id) return responses.badRequest(res, {}, "Location id is required");
+        const loc = await UserLocation.findByPk(id);
+        if (!loc) return responses.notFound(res, "Location not found");
+        await loc.destroy();
+        return responses.deleted(res, {}, "User location deleted");
+    } catch (err) {
+        console.error("Error in deleteUserLocation:", err);
+        return responses.serverError(res, {}, "Failed to delete user location");
+    }
+}
+
+// Search candidates for business (by location + radius)
+const searchCandidatesForBusiness = async (req, res, next) => {
+    try {
+        const latitude = req.query.latitude ? parseFloat(req.query.latitude) : null;
+        const longitude = req.query.longitude ? parseFloat(req.query.longitude) : null;
+        const radius = req.query.radius ? parseFloat(req.query.radius) : 10; // km
+        const position = req.query.position || null; // optional job position/title to filter
+
+        if (!latitude || !longitude) {
+            return responses.badRequest(res, {}, "latitude and longitude are required");
+        }
+
+        // Import WorkerProfile model
+        const WorkerProfile = require('../models/WorkerProfile');
+        const User = require('../models/User');
+        
+        // Get all worker profiles
+        const workers = await WorkerProfile.findAll({
+            where: {
+                is_available: true // Only show available workers
+            },
+            include: [{
+                model: User,
+                attributes: ['id', 'name', 'email', 'phone_number', 'profile_picture']
+            }],
+            limit: 100,
+            offset: 0
+        });
+
+        // Calculate distance for each worker and filter by radius
+        const results = workers
+            .map(worker => {
+                if (!worker.latitude || !worker.longitude) return null;
+                
+                // Haversine formula to calculate distance
+                const lat1 = latitude * Math.PI / 180;
+                const lat2 = parseFloat(worker.latitude) * Math.PI / 180;
+                const lng1 = longitude * Math.PI / 180;
+                const lng2 = parseFloat(worker.longitude) * Math.PI / 180;
+                
+                const dLat = lat2 - lat1;
+                const dLng = lng2 - lng1;
+                
+                const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+                         Math.cos(lat1) * Math.cos(lat2) *
+                         Math.sin(dLng / 2) * Math.sin(dLng / 2);
+                
+                const c = 2 * Math.asin(Math.sqrt(a));
+                const distance = 6371 * c; // km
+                
+                return {
+                    user_id: worker.user_id,
+                    name: worker.user?.name || 'Unknown',
+                    email: worker.user?.email || '',
+                    phone_number: worker.user?.phone_number || '',
+                    profile_picture: worker.user?.profile_picture || '',
+                    title: worker.title,
+                    bio: worker.bio,
+                    latitude: worker.latitude,
+                    longitude: worker.longitude,
+                    address: worker.location_name,
+                    availability: worker.availability_status,
+                    distance_km: distance,
+                    skills: worker.skills,
+                    hourly_rate: worker.hourly_rate,
+                    is_verified: worker.is_verified,
+                    average_rating: worker.average_rating
+                };
+            })
+            .filter(worker => worker && worker.distance_km <= radius)
+            .sort((a, b) => a.distance_km - b.distance_km);
+
+        return responses.success(res, { 
+            total: results.length, 
+            page: 1, 
+            limit: 100, 
+            data: results 
+        }, "Candidates fetched");
+    } catch (err) {
+        console.error("Error in searchCandidatesForBusiness:", err);
+        return responses.serverError(res, {}, "Failed to search candidates");
+    }
+}
 
 
 
@@ -935,6 +1129,11 @@ module.exports = {
     registerAdmin,
     aboutGharbeti,
     aboutServiceProvider,
+    searchNearbyUsers,
+    searchCandidatesForBusiness,
+    createUserLocation,
+    listUserLocations,
+    deleteUserLocation,
     changeUserStatusBlockUnblock,
     updateProfile,
     getServiceProviderDetailFromUserId,

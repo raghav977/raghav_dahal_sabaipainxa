@@ -49,6 +49,14 @@ const Booking = require("../models/Booking");
 const Bid = require("../models/Bid");
 const Rating = require("../models/Rating");
 
+// NEW: Job-related models
+const Job = require("../models/Job");
+const JobResponse = require("../models/JobResponse");
+const UserLocation = require("../models/UserLocation");
+const BusinessAccount = require("../models/BusinessAccount");
+const WebsiteBuilder = require("../models/WebsiteBuilder");
+const WorkerProfile = require("../models/WorkerProfile");
+
 // room payment
 
 const RoomPayment = require("../models/RoomPayment");
@@ -142,6 +150,10 @@ KycImages.belongsTo(Kyc, { foreignKey: "kycId" });
 // ===== User -> KYC =====
 User.hasOne(Kyc, { foreignKey: "userId" });
 Kyc.belongsTo(User, { foreignKey: "userId" });
+
+// ===== BusinessAccount -> KYC (polymorphic via entityType and entityId) =====
+BusinessAccount.hasMany(Kyc, { foreignKey: "entityId", constraints: false, scope: { entityType: "BusinessAccount" } });
+Kyc.belongsTo(BusinessAccount, { foreignKey: "entityId", constraints: false, targetKey: "id" });
 
 Room.hasMany(RoomImages, { foreignKey: "roomId" });
 RoomImages.belongsTo(Room, { foreignKey: "roomId" });
@@ -239,14 +251,76 @@ Room.hasMany(RoomPayment, { foreignKey: "roomId" });
 User.hasMany(RoomPayment, { foreignKey: "userId" });
 RoomPayment.belongsTo(User, { foreignKey: "userId" });
 
+// ===== JOB RELATIONSHIPS =====
+// Job -> User (creator)
+Job.belongsTo(User, { as: 'creator', foreignKey: 'created_by' });
+User.hasMany(Job, { as: 'jobs', foreignKey: 'created_by' });
+
+// JobResponse -> Job
+JobResponse.belongsTo(Job, { foreignKey: 'job_id' });
+Job.hasMany(JobResponse, { as: 'responses', foreignKey: 'job_id' });
+
+// JobResponse -> User
+JobResponse.belongsTo(User, { foreignKey: 'user_id' });
+User.hasMany(JobResponse, { as: 'jobResponses', foreignKey: 'user_id' });
+
+// UserLocation -> User
+UserLocation.belongsTo(User, { foreignKey: 'user_id' });
+User.hasMany(UserLocation, { as: 'locations', foreignKey: 'user_id' });
+
+// BusinessAccount -> User
+BusinessAccount.belongsTo(User, { foreignKey: 'user_id' });
+User.hasOne(BusinessAccount, { as: 'businessAccount', foreignKey: 'user_id' });
+
+// BusinessAccount -> WebsiteBuilder (One-to-Many)
+BusinessAccount.hasMany(WebsiteBuilder, { foreignKey: 'business_account_id', as: 'websites' });
+WebsiteBuilder.belongsTo(BusinessAccount, { foreignKey: 'business_account_id' });
+
+// ===== WORKER PROFILE RELATIONSHIPS =====
+// User -> WorkerProfile (One-to-One)
+User.hasOne(WorkerProfile, { foreignKey: 'user_id', as: 'workerProfile' });
+WorkerProfile.belongsTo(User, { foreignKey: 'user_id' });
+
 const syncDatabase = async () => {
   try {
     await sequelize.authenticate();
-   await sequelize.sync({alter: false});
-// await sequelize.sync({ force: true });
-// await sequelize.query('SET FOREIGN_KEY_CHECKS = 1');
+    
+    // Disable foreign key checks to allow cleanup
+    await sequelize.query('SET FOREIGN_KEY_CHECKS = 0');
+    
+    // Delete orphaned job records with non-existent created_by users
+    // Only if tables exist
+    // try {
+    //   await sequelize.query(`
+    //     DELETE FROM jobs 
+    //     WHERE created_by IS NOT NULL 
+    //     AND created_by NOT IN (SELECT id FROM users)
+    //   `);
+    // } catch (e) {
+    //   // Table doesn't exist yet, skip cleanup
+    //   if (e.code !== 'ER_NO_SUCH_TABLE') throw e;
+    // }
+    
+    // Delete orphaned job responses
+    // Only if tables exist
+    // try {
+    //   await sequelize.query(`
+    //     DELETE FROM job_responses 
+    //     WHERE job_id IS NOT NULL 
+    //     AND job_id NOT IN (SELECT id FROM jobs)
+    //   `);
+    // } catch (e) {
+    //   // Table doesn't exist yet, skip cleanup
+    //   if (e.code !== 'ER_NO_SUCH_TABLE') throw e;
+    // }
+    
+    // Re-enable foreign key checks
+    await sequelize.query('SET FOREIGN_KEY_CHECKS = 1');
+    
+    // Now sync the database - use force: false to create if not exists
+    await sequelize.sync({ alter: false, force: false });
 
-    console.log("✅ Database synced");
+    console.log("Database synced successfully");
   } catch (err) {
     
     console.error(" Database sync error:", err && err.message ? err.message : err);
@@ -280,4 +354,10 @@ module.exports = {
   ServiceSchedules,
   Kyc,
   KycImages,
+  Job,
+  JobResponse,
+  UserLocation,
+  BusinessAccount,
+  WebsiteBuilder,
+  WorkerProfile,
 };
