@@ -30,10 +30,10 @@ export default function AboutKaamcha() {
       <div className="container mx-auto px-4 text-center">
         <div className="max-w-3xl mx-auto">
           <h2 className="text-4xl font-playfair font-bold text-gray-800 mb-4">
-            About Kaam-Chaa
+            About SabaiPainxa
           </h2>
           <p className="text-gray-600 font-ibm mb-8 leading-relaxed">
-            Kaam-Chaa is your trusted platform for connecting with skilled
+            SabaiPainxa is your trusted platform for connecting with skilled
             service providers in your area. Whether you need help with
             household repairs, cleaning, caregiving, or professional services,
             we make it easy to find reliable experts.

@@ -1,13 +1,14 @@
 // ...existing code...
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, use } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { motion, AnimatePresence } from "framer-motion";
 import { FaEnvelope, FaLock, FaMapMarkerAlt, FaPhone, FaCheckCircle, FaUserAlt } from "react-icons/fa";
 import { useRouter } from "next/navigation";
+import { aboutUser } from "@/app/redux/slices/authSlice";
 
 export default function ServiceProviderSignup() {
   const router = useRouter();
@@ -45,6 +46,18 @@ export default function ServiceProviderSignup() {
 
 
   const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL
+
+
+
+    useEffect(()=>{
+    const token = localStorage.getItem("token");
+    if (token) {
+      console.log("Token found in localStorage, checking session...");
+      checkExistingSession();
+    }
+  },[])
+
+  
 
   // load provinces on mount
   useEffect(() => {
@@ -167,6 +180,28 @@ export default function ServiceProviderSignup() {
       setError(err.message);
     } finally {
       setLoading(false);
+    }
+  };
+
+
+
+  const checkExistingSession = async () => {
+    const token = localStorage.getItem("token");
+    if (token) {
+      try {
+        const resultAction = await dispatch(aboutUser());
+
+        if (aboutUser.fulfilled.match(resultAction)) {
+          console.log("User is authenticated");
+          router.push("/");
+        } else {
+          localStorage.removeItem("token");
+          localStorage.removeItem("refreshToken");
+        }
+      } catch (err) {
+        localStorage.removeItem("token");
+        localStorage.removeItem("refreshToken");
+      }
     }
   };
 

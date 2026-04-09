@@ -229,7 +229,7 @@ export default function ProviderLayout({ children }) {
         </nav>
 
         <div className="p-6 border-t border-green-700 text-center text-xs text-green-100">
-          &copy; {new Date().getFullYear()} Kaam-Chaa. All rights reserved.
+          &copy; {new Date().getFullYear()} SabaiPainxa. All rights reserved.
         </div>
       </aside>
 

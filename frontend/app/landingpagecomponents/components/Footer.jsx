@@ -12,7 +12,7 @@ export default function Footer() {
               <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-to-r from-green-600 to-emerald-600">
                 <Briefcase className="h-6 w-6 text-white" />
               </div>
-              <span className="text-2xl font-bold">Kaam Chaa</span>
+              <span className="text-2xl font-bold">SabaiPainxa</span>
             </div>
             <p className="text-gray-400 mb-4 max-w-md">
               Connecting skilled workers with meaningful opportunities. Building careers, one connection at a time.

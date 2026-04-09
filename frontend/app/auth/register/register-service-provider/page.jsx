@@ -394,7 +394,7 @@ export default function ServiceProviderSignup() {
               >
                 <FaCheckCircle className="text-green-600 text-5xl mb-4" />
                 <h2 className="text-2xl font-bold text-green-700 mb-2">Registration Successful!</h2>
-                <p className="text-green-700 mb-4 text-center">Welcome to Kaam-Chaa. You can now login and start providing your services.</p>
+                <p className="text-green-700 mb-4 text-center">Welcome to SabaiPainxa. You can now login and start providing your services.</p>
                 <Button
                   className="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-lg font-semibold"
                   onClick={() => window.location.href = "/auth/login/provider"}

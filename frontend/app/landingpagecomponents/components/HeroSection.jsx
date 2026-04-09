@@ -241,7 +241,7 @@ export default function HeroSection() {
 
           <p className="mt-4 text-white/80 text-md md:text-lg max-w-2xl mx-auto font-ibm">
             Whether you need household repairs, cleaning services, or professional
-            help, <span className="font-semibold text-green-200">Upaayax</span>{' '}
+            help, <span className="font-semibold text-green-200">SabaiPainxa</span>{' '}
             connects you with trusted local service providers.
           </p>
 

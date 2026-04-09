@@ -1,13 +1,13 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Mail, Lock, Eye, EyeOff } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useDispatch } from "react-redux";
-import { loginUser } from "@/app/redux/slices/authSlice";
+import { aboutUser, loginUser } from "@/app/redux/slices/authSlice";
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
 import { ToastContainer, toast } from "react-toastify";
@@ -23,6 +23,33 @@ export default function LoginPage() {
     email: Yup.string().email("Invalid email").required("Required"),
     password: Yup.string().min(6, "At least 6 chars").required("Required"),
   });
+
+  useEffect(()=>{
+    const token = localStorage.getItem("token");
+
+    if(token){
+      checkExistingSession();
+    }
+
+  },[])
+
+  const checkExistingSession = async () => {
+    const token = localStorage.getItem("token");
+    if (token) {
+      try {
+        const resultAction = await dispatch(aboutUser());
+        if (aboutUser.fulfilled.match(resultAction)) {
+          router.push("/");
+        } else {
+          localStorage.removeItem("token");
+          localStorage.removeItem("refreshToken");
+        }
+      } catch (err) {
+        localStorage.removeItem("token");
+        localStorage.removeItem("refreshToken");
+      }
+    }
+  };
 
   const handleLogin = async (values, { setSubmitting }) => {
     try {
@@ -84,7 +111,7 @@ export default function LoginPage() {
             <span className="text-white font-bold text-2xl">K</span>
           </div>
           <CardTitle className="text-2xl font-bold">Welcome Back</CardTitle>
-          <CardDescription>Sign in to your Kaam Chaa account</CardDescription>
+          <CardDescription>Sign in to your SabaiPainxa account</CardDescription>
         </CardHeader>
 
         <CardContent>

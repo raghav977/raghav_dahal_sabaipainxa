@@ -29,9 +29,9 @@ const feixenSans = localFont({
 })
 
 export const metadata = {
-  title: 'KAAM CHAA',
-  description: 'Created BY DIGITALPATHSALA',
-  generator: 'DIGITAL PATHSALA',
+  title: 'SabaiPainxa',
+  description: 'Created BY RAGHAV DAHAL',
+  generator: 'RAGHAV DAHAL',
 }
 
 export default function RootLayout({ children }) {

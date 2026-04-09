@@ -49,7 +49,7 @@ export default function CallToAction() {
           Ready to Get Started?
         </h2>
         <p className="text-xl text-green-100 mb-10 max-w-2xl mx-auto">
-          Join thousands of workers and employers who trust Kaam Chaa for their work needs
+          Join thousands of workers and employers who trust SabaiPainxa for their work needs
         </p>
 
         <div className="flex flex-col sm:flex-row gap-4 justify-center">

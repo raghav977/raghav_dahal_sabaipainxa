@@ -178,6 +178,46 @@ export default function HeaderNavbar() {
     }
   };
 
+  const handleBecomeBusiness = async () => {
+    const token = getTokenFromLocalStorage("token");
+    if (!token) {
+      router.push("/auth/login");
+      return;
+    }
+    try {
+      const res = await fetch(`${BASE_URL}/api/users/profile`, {
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`,
+        },
+      });
+
+      if (!res.ok) {
+        router.push("/auth/login");
+        return;
+      }
+
+      const data = await res.json();
+      const currentUser = data?.data?.user || data?.data || data;
+
+      if (data?.status && data.status !== "success") {
+        router.push("/auth/login");
+        return;
+      }
+
+      // If user already has a business account, go to dashboard
+      if (data?.data?.business_id) {
+        router.push("/dashboard/business-account");
+      } else {
+        // Otherwise, redirect to business account registration
+        router.push("/business-account/register");
+      }
+    } catch (err) {
+      console.error("Failed to fetch profile for business account flow:", err);
+      router.push("/auth/login");
+    }
+  };
+
   const handleBecomeProvider = async () => {
     const token = getTokenFromLocalStorage("token");
     if (!token) {
@@ -238,7 +278,8 @@ export default function HeaderNavbar() {
     { name: "Home", link: "/" },
     { name: "Home Services", link: "/home-services" },
     { name: "Find a Room", link: "/find-a-room" },
-    {name:"Nepali Template", link:"/nepali-template"},
+    {name:"Template", link:"/nepali-template"},
+    {name:"Jobs", link:"/find-jobs"},
     { name: "My Bookings", link: "/user/bookings", show: (u) => !!u },
   ];
 
@@ -351,6 +392,17 @@ export default function HeaderNavbar() {
                       <button onClick={() => { setJoinOpen(false); handleBecomeGharbeti(); }} className="w-full px-3 py-2 text-left text-sm hover:bg-gray-100 flex items-center">
                         <Home className="mr-2 h-4 w-4" /> Be a Gharbeti
                       </button>
+                       <button onClick={() => { setJoinOpen(false); handleBecomeBusiness(); }} className="w-full px-3 py-2 text-left text-sm hover:bg-gray-100 flex items-center">
+                        <Briefcase className="mr-2 h-4 w-4" /> Be a Business Account holder
+                      </button>
+                      
+                      <button onClick={() => { setJoinOpen(false); handleBecomeBusiness(); }} className="w-full px-3 py-2 text-left text-sm hover:bg-gray-100 flex items-center">
+                        <Briefcase className="mr-2 h-4 w-4" /> Get a Business Account 
+                      </button>
+                      <Link href="/worker-profile/create" onClick={() => setJoinOpen(false)} className="w-full px-3 py-2 text-left text-sm hover:bg-gray-100 flex items-center">
+                        <UserCircle className="mr-2 h-4 w-4" /> Create Worker Profile
+                      </Link>
+                      
                     </div>
                     <div className="border-t py-1">
                       <button onClick={() => { setJoinOpen(false); handleLogout(); }} className="w-full px-3 py-2 text-left text-sm hover:bg-gray-100 flex items-center text-red-600">
@@ -416,15 +468,17 @@ export default function HeaderNavbar() {
               </div>
 
                   <button onClick={() => { setMenuOpen(false); handleBecomeProvider(); }} className="w-full text-left px-3 py-2 hover:bg-green-50 border-b border-gray-100">Be a Provider</button>
-                  <button onClick={() => { setMenuOpen(false); handleBecomeGharbeti(); }} className="w-full text-left px-3 py-2 hover:bg-green-50">Be a Gharbeti</button>
+                  <button onClick={() => { setMenuOpen(false); handleBecomeGharbeti(); }} className="w-full text-left px-3 py-2 hover:bg-green-50 border-b border-gray-100">Be a Gharbeti</button>
+                  <Link href="/worker-profile/create" onClick={() => setMenuOpen(false)} className="w-full text-left px-3 py-2 hover:bg-green-50 border-b border-gray-100 block">Create Worker Profile</Link>
                   <button onClick={() => { setMenuOpen(false); handleLogout(); }} className="w-full text-left px-3 py-2 mt-2 text-red-600 hover:bg-red-50 font-semibold">Logout</button>
                 </>
               )}
               {!user && (
                 <>
-                <h1>Hellowfs</h1>
+                {/* <h1>Hellowfs</h1> */}
                   <Link href="/auth/login" onClick={() => setMenuOpen(false)}><Button variant="ghost" className="w-full justify-start">Sign In</Button></Link>
                   <Link href="/auth/register" onClick={() => setMenuOpen(false)}><Button className="w-full bg-gradient-to-r from-green-600 to-emerald-600 text-white">Register</Button></Link>
+                  {/* <Link href="/business-account" onClick={() => setMenuOpen(false)}><Button variant="outline" className="w-full mt-2">Get a Business Account</Button></Link> */}
                 </>
               )}
             </nav>

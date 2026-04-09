@@ -5,7 +5,8 @@ export default function Layout({children}) {
     const menuItems = [
         { name: "निबेदन", link: "/nepali-template/nibedan" },
         { name: "पत्र", link: "/nepali-template/letter" },
-        { name: "सि.बि", link: "/nepali-template/cv" }
+        { name: "सि.बि", link: "/nepali-template/cv" },
+         {name:"Question Paper Generator",link:"/nepali-template/question-paper-generator"}
     ];
   return (
     <div className='flex'>
