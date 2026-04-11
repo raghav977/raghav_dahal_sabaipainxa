@@ -7,7 +7,7 @@ const WorkerProfile = require("./src/models/WorkerProfile");
 const seedWorkerData = async () => {
   try {
     await sequelize.authenticate();
-    console.log("✅ Database connected");
+    // console.log("✅ Database connected");
 
     // Create test users if they don't exist
     const user1 = await User.findOrCreate({
@@ -112,17 +112,6 @@ const seedWorkerData = async () => {
         average_rating: 4.2
       }
     });
-
-    console.log("✅ Worker profiles created/found:");
-    console.log(`  - ${profile1[0].title} at ${profile1[0].location_name}`);
-    console.log(`  - ${profile2[0].title} at ${profile2[0].location_name}`);
-    console.log(`  - ${profile3[0].title} at ${profile3[0].location_name}`);
-
-    console.log("\n✅ Test data seeded successfully!");
-    console.log("\nTest search endpoint:");
-    console.log("curl 'http://localhost:5001/api/users/search-candidates?latitude=27.7172&longitude=85.324&radius=10'");
-
-    process.exit(0);
   } catch (error) {
     console.error("❌ Error seeding data:", error.message);
     process.exit(1);

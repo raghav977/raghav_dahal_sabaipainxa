@@ -4,7 +4,7 @@ const qs = require("qs");
 const crypto = require("crypto");
 
 
-console.log("FRONTEND_URL", process.env.FRONTEND_URL);
+// console.log("FRONTEND_URL", process.env.FRONTEND_URL);
 
 
  const initiateEsewaPayment = async (roomPayment) => {

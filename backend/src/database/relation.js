@@ -314,11 +314,11 @@ const syncDatabase = async () => {
     //   if (e.code !== 'ER_NO_SUCH_TABLE') throw e;
     // }
     
-    // Re-enable foreign key checks
-    await sequelize.query('SET FOREIGN_KEY_CHECKS = 1');
+    // Now sync the database - keep foreign key checks OFF to avoid constraint issues during creation
+    await sequelize.sync({ alter: true, force: false });
     
-    // Now sync the database - use force: false to create if not exists
-    await sequelize.sync({ alter: false, force: false });
+    // Re-enable foreign key checks after sync is complete
+    await sequelize.query('SET FOREIGN_KEY_CHECKS = 1');
 
     console.log("Database synced successfully");
   } catch (err) {

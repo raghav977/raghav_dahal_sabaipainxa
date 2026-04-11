@@ -5,11 +5,11 @@ const userServices = require("../services/userServices");
 const jwt = require("jsonwebtoken");
 
 const authMiddleware = async (req, res, next) => {
-  console.log("this is requst url",req.url)
-  console.log("🔐 authMiddleware invoked");
+  // console.log("this is requst url",req.url)
+  // console.log("🔐 authMiddleware invoked");
 
   try {
-    console.log("this is request headers",req.headers)
+    // console.log("this is request headers",req.headers)
     const accessToken = req.headers["authorization"]?.split(" ")?.[1] || null;
     const refreshToken = req.headers["x-refresh-token"] || null;
 
@@ -26,7 +26,7 @@ const authMiddleware = async (req, res, next) => {
     } catch (err) {
 
       if (err.name === "TokenExpiredError") {
-        console.log("⚠️ Access token expired.");
+        // console.log("⚠️ Access token expired.");
 
             if (refreshToken) {
           try {
@@ -49,7 +49,7 @@ const authMiddleware = async (req, res, next) => {
 
             req.user = user;
             req.roles = refreshDecoded.roles || [];
-            console.log("✅ Access token refreshed automatically!");
+            // console.log("✅ Access token refreshed automatically!");
             return next();
           } catch (refreshErr) {
             console.error("❌ Refresh token invalid or expired:", refreshErr.message);

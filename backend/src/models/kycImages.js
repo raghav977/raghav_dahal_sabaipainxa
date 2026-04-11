@@ -14,11 +14,6 @@ const KycImages = sequelize.define("KycImages",{
     kycId:{
         type: DataTypes.INTEGER,
         allowNull:true,
-        references:{
-            model:'Kycs',
-            key:'id'
-        },
-        onDelete:'CASCADE'
     }
 },{
     tableName:"kyc_images",

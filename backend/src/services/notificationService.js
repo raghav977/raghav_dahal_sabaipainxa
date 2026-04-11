@@ -29,7 +29,7 @@ const sendNotification = async (userId, title, message) => {
     return notification;
   } catch (err) {
     await transaction.rollback();
-    console.error("❌ Notification error:", err);
+    console.error("Notification error:", err);
     throw err;
   }
 };

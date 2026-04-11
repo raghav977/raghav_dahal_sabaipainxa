@@ -64,6 +64,12 @@ const jobRoutes = require("./routes/job.routes");
 const businessAccountRoutes = require("./routes/businessAccount.routes");
 const websiteBuilderRoutes = require("./routes/websiteBuilder.routes");
 const workerProfileRoutes = require("./routes/workerProfile.routes");
+
+// Health check endpoint for Docker/Kubernetes
+app.get("/health", (req, res) => {
+  res.status(200).json({ status: "OK", timestamp: new Date().toISOString() });
+});
+
 // Admin KYC
 app.use("/api/admin/kyc", adminKycRoute);
 

@@ -31,24 +31,39 @@ const getValueInModel = async(Model, field, value)=>{
 }
 
 
-const validateContactNumber = (numberString)=>{
-    console.log("thE number string starts with 98?",numberString.startsWith('98'));
-    console.log("thE number string starts with 97?",numberString.startsWith('97'));
+// const validateContactNumber = (numberString)=>{
+//     console.log("thE number string starts with 98?",numberString.startsWith('98'));
+//     console.log("thE number string starts with 97?",numberString.startsWith('97'));
 
+
+//     if(!numberString.startsWith('98') && !numberString.startsWith('97')){
+
+//         return false;
+
+//     }
+//     if(numberString.length!=10){
+//         return false;
+
+//     }
+
+//     return true;
+
+
+// }
+const validateContactNumber = (numberString)=>{
 
     if(!numberString.startsWith('98') && !numberString.startsWith('97')){
-
         return false;
+    }
 
+    if(/[a-zA-Z]/.test(numberString)){
+        return false;
     }
     if(numberString.length!=10){
         return false;
-
     }
 
     return true;
-
-
 }
 
 const validateEmail = (email) => {

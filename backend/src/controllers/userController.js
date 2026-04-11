@@ -261,7 +261,7 @@ const getUserProfile = async(req,res,next)=>{
     }
 
 const gharbeti_id = gharbeti && gharbeti.is_active ? gharbeti.id : null;
-console.log("This is gharbeti id:", gharbeti_id);
+// console.log("This is gharbeti id:", gharbeti_id);
         const service_provider_id = serviceProvider && serviceProvider.is_active ? serviceProvider.id : null;
         const business_id = businessAccount ? businessAccount.id : null;
         console.log("This is service provider id:", service_provider_id);

@@ -32,15 +32,15 @@ io.use(async (socket, next) => {
     // 1. socket.handshake.auth (preferred)
     // 2. socket.handshake.query (legacy)
     // 3. cookies
-    console.log("socket connection triggered")
+    // console.log("socket connection triggered")
     const authToken = socket.handshake?.auth?.token;
     const authRefresh = socket.handshake?.auth?.refreshToken;
 
     const queryToken = socket.handshake?.query?.token;
     const queryRefresh = socket.handshake?.query?.refreshToken;
 
-    console.log("socket handshake auth token:", authToken);
-    console.log("socket handshake query token:", queryToken);
+    // console.log("socket handshake auth token:", authToken);
+    // console.log("socket handshake query token:", queryToken);
 
     if (!authToken && !queryToken) {
       const cookieHeader = socket.handshake.headers.cookie;
@@ -70,7 +70,7 @@ io.use(async (socket, next) => {
     try {
       const user = await verifyToken(finalToken);
       socket.user = user;
-      console.log("is this user",user)
+      // console.log("is this user",user)
       return next();
     } catch (err) {
       if (err.name === "TokenExpiredError" && finalRefreshToken) {
@@ -86,19 +86,19 @@ io.use(async (socket, next) => {
           socket.emit("token-refreshed", { token: newAccessToken });
 
           socket.user = user;
-          console.log("🔄 Refreshed token for socket connection");
+          // console.log("🔄 Refreshed token for socket connection");
           return next();
         } catch (refreshErr) {
-          console.error("Refresh failed:", refreshErr.message);
+          // console.error("Refresh failed:", refreshErr.message);
           return next(new Error("Authentication error: Refresh failed"));
         }
       }
 
-      console.error("Invalid or expired token:", err.message);
+      // console.error("Invalid or expired token:", err.message);
       return next(new Error("Authentication error: Invalid token"));
     }
   } catch (e) {
-    console.error("💥 Socket auth error:", e);
+    // console.error("💥 Socket auth error:", e);
     next(new Error("Authentication middleware failed"));
   }
 });

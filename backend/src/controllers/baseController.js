@@ -99,8 +99,8 @@ class BaseController{
     // create wala
     async create(req,res){
         try{
-            console.log("Request body in create:", req.body);
-            console.log("Model in create:", this.model.name);
+            // console.log("Request body in create:", req.body);
+            // console.log("Model in create:", this.model.name);
             const item = await this.model.create(req.body);
             res.status(201).json(item);
         }

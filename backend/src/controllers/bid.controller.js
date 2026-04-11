@@ -66,7 +66,7 @@ class UserBookingController extends BaseController {
 // ----------------------------
 const getUserBids = async (req, res) => {
   try {
-    console.log("Fetching bids for bookingId:", req.query.bookingId);
+    // console.log("Fetching bids for bookingId:", req.query.bookingId);
     const bookingId = Number(req.query.bookingId);
     if (!bookingId || bookingId <= 0)
       return responses.badRequest(res, "Valid bookingId is required.");
@@ -76,13 +76,13 @@ const getUserBids = async (req, res) => {
 
     // Allow owner or service providers to fetch bids
     const isOwner = booking.userId === req.user.id;
-console.log("this is request user roles",req.user)
-const roles = await getUserRole(req.user)
+    // console.log("this is request user roles",req.user)
+    const roles = await getUserRole(req.user)
 
-let rol = []
-roles.forEach(r => rol.push(r.name))
-req.user.roles = rol
-console.log("this is request user roles after",req.user.roles)
+    let rol = []
+    roles.forEach(r => rol.push(r.name))
+    req.user.roles = rol
+    // console.log("this is request user roles after",req.user.roles)
     const isProvider = req.user.roles.includes("Service_provider");
     if (!isOwner && !isProvider)
       return responses.unauthorized(res, "Not authorized to view bids.");
