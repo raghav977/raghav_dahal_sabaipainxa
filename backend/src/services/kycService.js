@@ -246,7 +246,7 @@ const getAllKycStatus = async (status = null) => {
 
 const getDocumentTypes = async (req, res) => {
   try {
-    const [results] = await sequelize.query("SHOW COLUMNS FROM Kycs LIKE 'document_type'");
+    const [results] = await sequelize.query("SHOW COLUMNS FROM kycs LIKE 'document_type'");
     const enumValues = results[0].Type.match(/enum\((.*)\)/)[1]
       .replace(/'/g, "")
       .split(",");
