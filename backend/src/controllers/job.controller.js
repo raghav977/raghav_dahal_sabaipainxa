@@ -3,6 +3,7 @@ const Job = require("../models/Job");
 const JobResponse = require("../models/JobResponse");
 const responses = require("../http/response");
 const { Op } = require("sequelize");
+const User = require("../models/User");
 
 class JobController extends BaseController {
   constructor() {
@@ -243,7 +244,14 @@ class JobController extends BaseController {
     try {
       const job = await this.model.findByPk(req.params.id);
       if (!job) return responses.notFound(res, "Job not found");
-      const responses_data = await JobResponse.findAll({ where: { job_id: job.id }, order: [["createdAt", "DESC"]] });
+      const responses_data = await JobResponse.findAll({ where: { job_id: job.id },
+        include: [
+          {
+            model:User,
+            attributes: ['id', 'name', 'email','profile_picture'],
+          },
+        ],
+         order: [["createdAt", "DESC"]] });
       const jobObj = job.toJSON();
       jobObj.responses = responses_data.map(r => r.toJSON ? r.toJSON() : r);
       return responses.success(res, jobObj, "Job fetched");

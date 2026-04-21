@@ -7,7 +7,7 @@ const ServiceProviderServices = sequelize.define("ServiceProviderServices", {
     allowNull: false,
   },
   description: {
-    type: DataTypes.STRING(255), 
+    type: DataTypes.STRING(1000), 
     allowNull: true,
   },
   status: {

@@ -315,7 +315,7 @@ const syncDatabase = async () => {
     // }
     
     // Now sync the database - keep foreign key checks OFF to avoid constraint issues during creation
-    await sequelize.sync({ alter: true, force: false });
+    await sequelize.sync({ alter: false });
     
     // Re-enable foreign key checks after sync is complete
     await sequelize.query('SET FOREIGN_KEY_CHECKS = 1');

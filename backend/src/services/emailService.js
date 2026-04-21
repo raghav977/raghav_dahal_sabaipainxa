@@ -33,7 +33,7 @@ const sendEmail = async (to, subject, otp) => {
                   <h1 style="color: #4CAF50;">${subject}</h1>
                   <p>Hello,</p>
                   <p> <strong>${otp}</strong></p>
-                  <p>Thank you for choosing <strong>UPAAYAX</strong>!</p>
+                  <p>Thank you for choosing <strong>SABAIPAINXA</strong>!</p>
                 </td>
               </tr>
 
@@ -41,8 +41,8 @@ const sendEmail = async (to, subject, otp) => {
               <tr>
                 <td style="padding: 20px; background-color: #f0f0f0; text-align: center; color: #777;">
                   <p>Best regards,</p>
-                  <img src="https://yourdomain.com/signature.png" alt="UPAAYAX Team" width="120">
-                  <p>UPAAYAX Team</p>
+                  <img src="https://yourdomain.com/signature.png" alt="SABAIPAINXA Team" width="120">
+                  <p>SABAIPAINXA Team</p>
                   <p><a href="https://sabaipainxa.com" style="color: #4CAF50; text-decoration: none;">sabaipainxa.com</a></p>
                 </td>
               </tr>
