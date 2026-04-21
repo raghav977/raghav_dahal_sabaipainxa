@@ -227,7 +227,7 @@ export default function JobApplicantsPage() {
                         </div>
                         <div>
                           <h3 className="text-lg font-semibold text-gray-900">
-                            {applicant.user?.full_name || applicant.user?.username || "Anonymous"}
+                            {applicant.user?.full_name || applicant.user?.name || "Anonymous"}
                           </h3>
                           <p className="text-gray-600 text-sm">{applicant.user?.email}</p>
                         </div>
@@ -262,12 +262,12 @@ export default function JobApplicantsPage() {
                         {applicant.status || "Applied"}
                       </div>
                       <div className="space-y-2 text-right">
-                        <a
+                        {/* <a
                           href={`/users/${applicant.user?.id}`}
                           className="block text-blue-600 hover:text-blue-700 text-sm font-semibold"
                         >
                           View Profile
-                        </a>
+                        </a> */}
                         {applicant.user?.resume && (
                           <a
                             href={applicant.user}

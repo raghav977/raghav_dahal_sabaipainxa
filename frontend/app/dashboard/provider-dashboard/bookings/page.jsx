@@ -161,14 +161,31 @@ export default function MyBookings() {
           },
         }
       );
-      if (response.status == "success") {
-        console.log("Booking marked as complete");
-        // alert("Booking successfully occured");
+      
+      const data = await response.json();
+      
+      if (response.ok && data.status === "success") {
+        // Update the selected booking with the new data
+        setSelectedBooking((prev) => ({
+          ...prev,
+          providerCompleted: true,
+        }));
+        
+        // Refresh the bookings list
+        setBookings((prev) =>
+          prev.map((b) =>
+            b.id === id ? { ...b, providerCompleted: true } : b
+          )
+        );
+        
+        alert("✅ Booking marked as complete! Waiting for client confirmation.");
       } else {
-        // alert("failed");
-        alert("booking successfully marked as complete");
+        alert("❌ " + (data.message || "Failed to mark as complete"));
       }
-    } catch (err) {}
+    } catch (err) {
+      console.error("Error marking as complete:", err);
+      alert("❌ An error occurred while marking as complete");
+    }
   };
 
 
@@ -271,6 +288,25 @@ export default function MyBookings() {
                   <p className="text-sm text-gray-500 pt-1">
                     ID: #{booking.id}
                   </p>
+                  {/* Completion Status Indicator */}
+                  {status === "confirmed" && (
+                    <div className="mt-2 flex items-center gap-4 text-xs">
+                      <div className="flex items-center gap-1">
+                        {booking.clientCompleted ? (
+                          <span className="text-green-600 font-medium">✓ Client completed</span>
+                        ) : (
+                          <span className="text-amber-600 font-medium">○ Client pending</span>
+                        )}
+                      </div>
+                      <div className="flex items-center gap-1">
+                        {booking.providerCompleted ? (
+                          <span className="text-green-600 font-medium">✓ You completed</span>
+                        ) : (
+                          <span className="text-amber-600 font-medium">○ You pending</span>
+                        )}
+                      </div>
+                    </div>
+                  )}
                 </CardHeader>
 
                 <CardContent className="space-y-3">
@@ -387,30 +423,107 @@ export default function MyBookings() {
                 )}
               </div>
             </div>
-            <div className="flex justify-end mt-4">
-              {selectedBooking.status === "confirmed" && (
-                <div className="flex justify-end mt-4">
-                  <Button
-                    variant="success"
-                    onClick={() => handleMarkAsComplete(selectedBooking.id)}
-                    disabled={selectedBooking.providerCompleted}
-                  >
-                    {selectedBooking.providerCompleted
-                      ? "Already Marked Complete"
-                      : "Mark as Complete"}
-                  </Button>
+
+            {/* Completion Status Section */}
+            {selectedBooking.status === "confirmed" && (
+              <div className="mt-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                <h3 className="text-sm font-semibold text-gray-900 mb-4">Completion Status</h3>
+                <div className="space-y-3">
+                  {/* Client Completed Status */}
+                  <div className="flex items-center justify-between p-3 bg-white rounded border border-gray-200">
+                    <div className="flex items-center gap-3">
+                      <div className="text-sm">
+                        <p className="font-medium text-gray-700">Client Completed</p>
+                        <p className="text-xs text-gray-500">Service received and verified</p>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      {selectedBooking.clientCompleted ? (
+                        <div className="flex items-center gap-2 text-green-600">
+                          <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                            <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                          </svg>
+                          <span className="text-sm font-medium">Yes</span>
+                        </div>
+                      ) : (
+                        <div className="flex items-center gap-2 text-gray-400">
+                          <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                            <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+                          </svg>
+                          <span className="text-sm font-medium">No</span>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Provider Completed Status */}
+                  <div className="flex items-center justify-between p-3 bg-white rounded border border-gray-200">
+                    <div className="flex items-center gap-3">
+                      <div className="text-sm">
+                        <p className="font-medium text-gray-700">You Completed</p>
+                        <p className="text-xs text-gray-500">Service delivered</p>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      {selectedBooking.providerCompleted ? (
+                        <div className="flex items-center gap-2 text-green-600">
+                          <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                            <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                          </svg>
+                          <span className="text-sm font-medium">Yes</span>
+                        </div>
+                      ) : (
+                        <div className="flex items-center gap-2 text-gray-400">
+                          <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                            <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+                          </svg>
+                          <span className="text-sm font-medium">No</span>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Info Message */}
+                  <div className="p-3 bg-amber-50 border border-amber-200 rounded text-xs text-amber-700">
+                    <p className="font-medium">💡 How it works:</p>
+                    <p className="mt-1">Both client and provider must mark as complete for the admin to release payment. This ensures service quality.</p>
+                  </div>
                 </div>
+              </div>
+            )}
+
+            <div className="flex justify-end mt-4 gap-3">
+              {selectedBooking.status === "confirmed" && (
+                <Button
+                  onClick={() => handleMarkAsComplete(selectedBooking.id)}
+                  disabled={selectedBooking.providerCompleted}
+                  className={`${
+                    selectedBooking.providerCompleted
+                      ? "bg-gray-200 text-gray-500 cursor-not-allowed"
+                      : "bg-green-600 hover:bg-green-700 text-white"
+                  }`}
+                >
+                  {selectedBooking.providerCompleted ? (
+                    <>
+                      <svg className="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                      </svg>
+                      Marked Complete
+                    </>
+                  ) : (
+                    <>
+                      <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                      </svg>
+                      Mark as Complete
+                    </>
+                  )}
+                </Button>
               )}
               {selectedBooking.status !== "confirmed" && (
-                <div className="flex justify-end mt-4">
-                  <Button
-                    variant="outline"
-                    disabled
-                    className="cursor-not-allowed"
-                  >
-                    Awaiting Acceptance
-                  </Button>
-                </div>
+                <Button variant="outline" disabled className="cursor-not-allowed">
+                  Awaiting Acceptance
+                </Button>
               )}
             </div>
           </DialogContent>

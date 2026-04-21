@@ -156,7 +156,7 @@ export default function AdminSidebar({ user = {} }) {
         <nav className="flex-1 p-6 space-y-2">{adminNavBar.map(renderNavItem)}</nav>
 
         <div className="p-6 border-t border-green-700 text-xs text-green-100 text-center">
-          &copy; {new Date().getFullYear()} Upaayax. All rights reserved.
+          &copy; {new Date().getFullYear()} Sabaipainxa. All rights reserved.
         </div>
       </motion.aside>
 

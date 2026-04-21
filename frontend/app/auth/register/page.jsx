@@ -1,4 +1,4 @@
-// ...existing code...
+
 "use client";
 
 import { useState, useEffect, use } from "react";
@@ -9,6 +9,10 @@ import { motion, AnimatePresence } from "framer-motion";
 import { FaEnvelope, FaLock, FaMapMarkerAlt, FaPhone, FaCheckCircle, FaUserAlt } from "react-icons/fa";
 import { useRouter } from "next/navigation";
 import { aboutUser } from "@/app/redux/slices/authSlice";
+
+import { toast, ToastContainer } from "react-toastify";
+
+
 
 export default function ServiceProviderSignup() {
   const router = useRouter();
@@ -176,6 +180,8 @@ export default function ServiceProviderSignup() {
         throw new Error(data.message || "Failed to send OTP");
       }
       setOtpSent(true);
+      toast.success(`OTP sent to your ${useEmail ? "email" : "phone number"}. Please check and enter it below.`);
+
     } catch (err) {
       setError(err.message);
     } finally {
@@ -343,6 +349,7 @@ export default function ServiceProviderSignup() {
   // ---------- Render ----------
   return (
     <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-green-50 to-white p-6">
+       <ToastContainer position="top-right" autoClose={4000} />
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}

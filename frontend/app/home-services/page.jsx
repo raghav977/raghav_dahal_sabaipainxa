@@ -5,7 +5,7 @@ import HomeServicesContent from "./components/HomeServicesContent";
 export const dynamic = 'force-dynamic'
 
 export const metadata = {
-  title: "Home Services | UPAAYAX",
+  title: "Home Services | Sabaipainxa",
   description: "Find local service providers for all your home needs.",
 };
 
